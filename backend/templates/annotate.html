@@ -1,0 +1,46 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Annotation Screen</title>
+  <script src="/script.js" defer></script>
+  <style>
+    body {
+      text-align: center;
+    }
+    #container {
+      display: flex;
+      justify-content: center;
+      align-items: center;
+    }
+    #control-panel {
+      margin-left: 20px;
+    }
+    #brush-size-circle {
+      width: 50px;
+      height: 50px;
+      border: 1px solid black;
+      border-radius: 50%;
+    }
+  </style>
+</head>
+<body>
+  <h1>Annotation Screen</h1>
+  <h2 id="classLabel">Please annotate class: {{ classLabel }}</h2>
+
+  <div id="container">
+    <!-- Canvas for sketch -->
+    <img id="sketchCanvas" src="data:image/jpeg;base64,{{ sketch }}" alt="Sketch">
+    <!-- Control Panel -->
+    <div id="control-panel">
+      <button id="brushButton">Brush</button>
+      <button id="eraserButton">Eraser</button>
+      <br>
+      <label for="sizeSlider">Size:</label>
+      <input type="range" id="sizeSlider" min="1" max="100">
+      <div id="brush-size-circle"></div>
+    </div>
+  </div>
+
+  <button id="confirmButton">GOforit</button>
+</body>
+</html>
