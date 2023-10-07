@@ -5,6 +5,11 @@ from flask_session import Session
 import json
 import random
 import base64
+import numpy as np
+from PIL import Image
+from io import BytesIO
+import re
+import matplotlib.pyplot as plt
 
 app = Flask(__name__, static_folder='../frontend', static_url_path='/')
 # Configure session to use filesystem
@@ -81,7 +86,7 @@ def annotate():
         sketch_path, class_label = session['current_sketch_class_list'].pop(0)
         with open(sketch_path, "rb") as image_file:
             encoded_string = base64.b64encode(image_file.read()).decode()
-        return render_template('annotate.html', sketch=encoded_string, classLabel=class_label)
+        return render_template('annotate.html', sketch=encoded_string, classLabel=class_label , sketch_path=sketch_path)
     else:
         return "Session not initialized. Call /start first.", 400
 
@@ -91,13 +96,17 @@ def next_sketch():
     # Fetch the next sketch and class label from the session variable
     if 'current_sketch_class_list' in session:
         if len(session['current_sketch_class_list']) > 0:
+            isLast = False
+            if(len(session['current_sketch_class_list']) == 1 ):
+                isLast = True
+
             sketch_path, class_label = session['current_sketch_class_list'].pop(0)
             # Open image file
             with open(sketch_path, "rb") as image_file:
                 # Encode as base64
                 encoded_string = base64.b64encode(image_file.read()).decode()
-            
-            return jsonify({"sketch": encoded_string, "class_label": class_label}), 200
+
+            return jsonify({"sketch": encoded_string, "class_label": class_label , "sketch_path" : sketch_path , "isLast" : isLast , "remaining" : len(session['current_sketch_class_list'])  }), 200
         
         elif len(session['current_sketch_class_list']) == 0:
             return jsonify({"status": "done", "message": "All sketches annotated, ready for next user."}), 200
@@ -105,6 +114,68 @@ def next_sketch():
             return jsonify({"status": "error", "message": "Session not initialized. Call /start first."}), 400
     else:
         return jsonify({"status": "error", "message": "Session not initialized. Call /start first."}), 400
+
+
+
+@app.route('/save_user_image', methods=['POST'])
+def save_canvas():
+    inputs = request.get_json(force=True)
+    RADIUS = inputs['radius']
+    CLASS_LABEL= inputs['classLabel']
+    SKETCH_PATH= inputs['sketchPath']
+    print('radius =',RADIUS , "CLASS LABEL =", CLASS_LABEL , 'SKETCH PATH =', SKETCH_PATH)
+    # print("GET JSON  =", inputs)
+    # print("REQUEST =", request.form)
+    # print("USEENAME = ",inputs["userName"] , "IMAGE = ", inputs["userName"]  )
+    # print("STARTING USER IMAGE" )
+    image_data = re.sub('^data:image/.+;base64,', '', inputs['img'])
+    # print("IMAGE DATA  =" , image_data  )
+    im = Image.open(BytesIO(base64.b64decode(image_data)))
+
+    img_np = np.array(im)    
+    # Initialize a zeros array of shape (512, 512)
+    img_result = np.zeros((512, 512), dtype=np.uint8)
+    
+    for i in range(512):
+        for j in range(512):
+            pixel_value = img_np[i, j]
+            if np.all(pixel_value == [255,0,0,255]):
+                img_result[i, j] = 1
+
+    folder_path = os.path.join('user_annotations', inputs["userName"])
+
+    if not os.path.exists(folder_path):
+        os.makedirs(folder_path)
+    im.save(f'{folder_path}/FILENAME.png')
+    
+    # plt.imshow(img_result)
+    # plt.show()
+    
+    def timestamp_to_numpy(timestamp_list,size=512):
+        # Step 1: Initialize the array
+        result = np.zeros((size, size), dtype=np.float64)
+        
+        # Step 2: Find the min and max timestamps
+        timestamps = [entry['timestamp'] for entry in timestamp_list]
+        t_min = min(timestamps)
+        t_max = max(timestamps)
+        
+        # Step 3 & 4: Populate the array with normalized timestamps
+        for entry in timestamp_list:
+            y, x, timestamp = entry['X'], entry['Y'], entry['timestamp']
+            normalized_timestamp = (timestamp - t_min) / (t_max - t_min)
+            result[x-1, y-1] = normalized_timestamp  
+        
+        return result
+    
+    img_result2 = timestamp_to_numpy(inputs['userDataDrawingHistory'])
+    # img_result2 = np.flip(img_result2, axis=0)
+
+    # plt.imshow(img_result2)
+    # plt.show()
+    # breakpoint()
+    # print("userDataDrawingHistory =", inputs['userDataDrawingHistory'])
+    return json.dumps({'result': 'success'}), 200, {'ContentType': 'application/json'}
 
 
 if __name__ == "__main__":

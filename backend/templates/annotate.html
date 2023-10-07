@@ -2,7 +2,8 @@
 <html>
 <head>
   <title>Annotation Screen</title>
-  <script src="/script.js" defer></script>
+  <script  src="script.js" defer></script>
+  <script    src="annotate_script.js" defer></script>
   <style>
     body {
       text-align: center;
@@ -12,6 +13,7 @@
       justify-content: center;
       align-items: center;
     }
+
     #control-panel {
       margin-left: 20px;
     }
@@ -25,11 +27,35 @@
 </head>
 <body>
   <h1>Annotation Screen</h1>
-  <h2 id="classLabel">Please annotate class: {{ classLabel }}</h2>
+  <h2 id="classLabel">Please annotate class: <span>{{ classLabel }}</span></h2>
+  <div style="display: none" id="sketchPath">{{sketch_path}}</div>
 
   <div id="container">
     <!-- Canvas for sketch -->
-    <img id="sketchCanvas" src="data:image/jpeg;base64,{{ sketch }}" alt="Sketch">
+    <img style="display: none" id="sketchCanvas" src="data:image/jpeg;base64,{{sketch}}" alt="Sketch">
+{#      the canvas where we will display our image and do the drawing#}
+            <br>
+
+      <canvas
+        id="canvas"
+        width="512"
+        height="512"
+        style="border: 1px solid black;"
+      ></canvas>
+          <div style="margin-top: 5px;">
+              <span>Size: </span>
+              <input
+                type="range"
+                min="1"
+                max="50"
+                value="25"
+                class="size"
+                id="sizeRange"
+              />
+          </div>
+          <div style="margin-top: 5px;">
+              <button id="clear">Clear</button>
+            </div>
     <!-- Control Panel -->
     <div id="control-panel">
       <button id="brushButton">Brush</button>
@@ -42,5 +68,6 @@
   </div>
 
   <button id="confirmButton">GOforit</button>
+  <button style="display: none" id="nextParticipant"> Next participant !</button>
 </body>
 </html>
