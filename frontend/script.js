@@ -27,7 +27,7 @@ document.addEventListener("DOMContentLoaded", () => {
       console.log("SAVING CURRENT CHECK !")
       if(userDataDrawingHistory.length){
         console.log("SENDING THE IMAGE !")
-        // fetchUserSketchedImageResponse("SIDAHMED" , userDataDrawingHistory )
+        fetchUserSketchedImageResponse("SIDAHMED" , userDataDrawingHistory )
       }else{
         alert("You must do the sketching before movinf to the next ones !")
       }
