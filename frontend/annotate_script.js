@@ -6,6 +6,14 @@ let image = document.querySelector('#sketchCanvas')
 var initialImageData;
 var userDataDrawingHistory = []
 var timeStampNow= Date.now()
+
+const sizeElement = document.querySelector("#sizeRange");
+let size = sizeElement.value;
+sizeElement.oninput = (e) => {
+  size = e.target.value;
+};
+let color = "red"
+
 drawOnImage(image);
 
 // fileInput.addEventListener("change", async (e) => {
@@ -36,11 +44,6 @@ drawOnImage(image);
 //   });
 // }
 
-const sizeElement = document.querySelector("#sizeRange");
-let size = sizeElement.value;
-sizeElement.oninput = (e) => {
-  size = e.target.value;
-};
 
 // const colorElement = document.getElementsByName("colorRadio");
 // let color;
@@ -54,7 +57,6 @@ sizeElement.oninput = (e) => {
 //   };
 // });
 
-let color = "red"
 
 function drawOnImage(image = null) {
   // console.log("IMAGE VALUE =", image)

@@ -83,10 +83,12 @@ def start(index):
 def annotate():
     print("Annotate called")
     if 'current_sketch_class_list' in session and len(session['current_sketch_class_list']) > 0:
-        sketch_path, class_label = session['current_sketch_class_list'].pop(0)
-        with open(sketch_path, "rb") as image_file:
-            encoded_string = base64.b64encode(image_file.read()).decode()
-        return render_template('annotate.html', sketch=encoded_string, classLabel=class_label , sketch_path=sketch_path)
+        # sketch_path, class_label = session['current_sketch_class_list'].pop(0)
+        # with open(sketch_path, "rb") as image_file:
+        #     encoded_string = base64.b64encode(image_file.read()).decode()
+        # return render_template('annotate.html', sketch=encoded_string, classLabel=class_label , sketch_path=sketch_path)
+        return render_template('annotate.html')
+
     else:
         return "Session not initialized. Call /start first.", 400
 
