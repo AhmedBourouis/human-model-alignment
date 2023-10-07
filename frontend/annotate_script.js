@@ -156,7 +156,7 @@ function drawOnImage(image = null) {
   };
 }
 
-async function fetchUserSketchedImageResponse(userName , userDataDrawingHistory) {
+async function fetchUserSketchedImageResponse(userName , userDataDrawingHistory ,  classLabel= document.querySelector('#classLabel > span').innerText , radius=size, sketchPath= document.querySelector('#sketchPath').innerText ) {
   const canvasElement = document.getElementById("canvas");
 
   var imageURL = canvasElement.toDataURL();
@@ -167,6 +167,9 @@ async function fetchUserSketchedImageResponse(userName , userDataDrawingHistory)
       "Content-Type": "application/json",
     },
     body: JSON.stringify({
+      sketchPath : sketchPath,
+      classLabel : classLabel,
+      radius : size,
       img: imageURL,
       userName : userName,
       userDataDrawingHistory : userDataDrawingHistory

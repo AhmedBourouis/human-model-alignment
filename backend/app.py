@@ -86,7 +86,7 @@ def annotate():
         sketch_path, class_label = session['current_sketch_class_list'].pop(0)
         with open(sketch_path, "rb") as image_file:
             encoded_string = base64.b64encode(image_file.read()).decode()
-        return render_template('annotate.html', sketch=encoded_string, classLabel=class_label)
+        return render_template('annotate.html', sketch=encoded_string, classLabel=class_label , sketch_path=sketch_path)
     else:
         return "Session not initialized. Call /start first.", 400
 
@@ -116,6 +116,10 @@ def next_sketch():
 @app.route('/save_user_image', methods=['POST'])
 def save_canvas():
     inputs = request.get_json(force=True)
+    RADIUS = inputs['radius']
+    CLASS_LABEL= inputs['classLabel']
+    SKETCH_PATH= inputs['sketchPath']
+    print('radius =',RADIUS , "CLASS LABEL =", CLASS_LABEL , 'SKETCH PATH =', SKETCH_PATH)
     # print("GET JSON  =", inputs)
     # print("REQUEST =", request.form)
     # print("USEENAME = ",inputs["userName"] , "IMAGE = ", inputs["userName"]  )
