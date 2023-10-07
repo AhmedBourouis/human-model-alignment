@@ -27,6 +27,7 @@ document.addEventListener("DOMContentLoaded", () => {
       console.log("SAVING CURRENT CHECK !")
       if(userDataDrawingHistory.length){
         console.log("SENDING THE IMAGE !")
+        // THIS IS  THE LINE WHERE I HAVE CALLED THE SAVING IMAGE OPEARTION
         fetchUserSketchedImageResponse("SIDAHMED" , userDataDrawingHistory )
       }else{
         alert("You must do the sketching before movinf to the next ones !")
