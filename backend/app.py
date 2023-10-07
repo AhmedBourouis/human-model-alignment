@@ -96,13 +96,17 @@ def next_sketch():
     # Fetch the next sketch and class label from the session variable
     if 'current_sketch_class_list' in session:
         if len(session['current_sketch_class_list']) > 0:
+            isLast = False
+            if(len(session['current_sketch_class_list']) == 1 ):
+                isLast = True
+
             sketch_path, class_label = session['current_sketch_class_list'].pop(0)
             # Open image file
             with open(sketch_path, "rb") as image_file:
                 # Encode as base64
                 encoded_string = base64.b64encode(image_file.read()).decode()
-            
-            return jsonify({"sketch": encoded_string, "class_label": class_label}), 200
+
+            return jsonify({"sketch": encoded_string, "class_label": class_label , "sketch_path" : sketch_path , "isLast" : isLast , "remaining" : len(session['current_sketch_class_list'])  }), 200
         
         elif len(session['current_sketch_class_list']) == 0:
             return jsonify({"status": "done", "message": "All sketches annotated, ready for next user."}), 200
@@ -144,8 +148,8 @@ def save_canvas():
         os.makedirs(folder_path)
     im.save(f'{folder_path}/FILENAME.png')
     
-    plt.imshow(img_result)
-    plt.show()
+    # plt.imshow(img_result)
+    # plt.show()
     
     def timestamp_to_numpy(timestamp_list,size=512):
         # Step 1: Initialize the array
@@ -166,9 +170,10 @@ def save_canvas():
     
     img_result2 = timestamp_to_numpy(inputs['userDataDrawingHistory'])
     # img_result2 = np.flip(img_result2, axis=0)
-    plt.imshow(img_result2)
-    plt.show()
-    breakpoint()    
+
+    # plt.imshow(img_result2)
+    # plt.show()
+    # breakpoint()
     # print("userDataDrawingHistory =", inputs['userDataDrawingHistory'])
     return json.dumps({'result': 'success'}), 200, {'ContentType': 'application/json'}
 

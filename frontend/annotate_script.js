@@ -57,8 +57,12 @@ sizeElement.oninput = (e) => {
 let color = "red"
 
 function drawOnImage(image = null) {
+  // console.log("IMAGE VALUE =", image)
   const canvasElement = document.getElementById("canvas");
-  const context = canvasElement.getContext("2d");
+  // console.log("CANVAS VALUE =", canvasElement)
+  const context = canvasElement.getContext("2d", { willReadFrequently: true });
+  // console.log("CANVAS CONTEXT =", context)
+  context.clearRect(0,0,512,512);
 
   // if an image is present,
   // the image passed as a parameter is drawn in the canvas
@@ -89,7 +93,7 @@ function drawOnImage(image = null) {
     const y = rect.y;
     console.log("X, Y ON MOUSE DOWN FOR THE MOUSE= ",e.offsetX,e.offsetY)
     userDataDrawingHistory.push({"X": e.offsetX , "Y" : e.offsetY , "timestamp" : Date.now()-timeStampNow })
-    console.log("USER DATA DRAWING NOW =", userDataDrawingHistory)
+    // console.log("USER DATA DRAWING NOW =", userDataDrawingHistory)
     isDrawing = true;
     context.beginPath();
     context.lineWidth = size;
@@ -115,7 +119,7 @@ function drawOnImage(image = null) {
       // console.log("INITIAL IMAGE DATA = ", initialImageData.data)
       for(var i=0;i<imageDataArr.length;i+=4){
             // if it was previously white , then we must keep it white
-            if(initialImageData.data[i] > 0){
+            if(initialImageData.data[i] > 255/2 || initialImageData.data[i+1] > 255/2 || initialImageData.data[i+2] > 255/2 ){
               // console.log("PREVIOSULY WHITE !")
               imageDataArr[i]=initialImageData.data[i]
               imageDataArr[i+1]=initialImageData.data[i+1]
@@ -160,7 +164,7 @@ async function fetchUserSketchedImageResponse(userName , userDataDrawingHistory 
   const canvasElement = document.getElementById("canvas");
 
   var imageURL = canvasElement.toDataURL();
-  console.log("DATA URL", imageURL)
+  // console.log("DATA URL", imageURL)
   const response = await fetch("/save_user_image", {
     method: "POST",
     headers: {
@@ -175,4 +179,16 @@ async function fetchUserSketchedImageResponse(userName , userDataDrawingHistory 
       userDataDrawingHistory : userDataDrawingHistory
     })
   });
+  return response
+}
+
+function initializeCanvasElementForNextSketch(){
+  setTimeout(()=>{
+      image = document.querySelector('#sketchCanvas')
+    userDataDrawingHistory = []
+    timeStampNow= Date.now()
+    // console.log("IMAGE AFTER INIT =", image)
+    drawOnImage(image);
+  },300)
+
 }
