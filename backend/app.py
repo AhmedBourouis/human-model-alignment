@@ -6,6 +6,10 @@ import json
 import random
 import base64
 
+from PIL import Image
+from io import BytesIO
+import re
+
 app = Flask(__name__, static_folder='../frontend', static_url_path='/')
 # Configure session to use filesystem
 app.config["SESSION_PERMANENT"] = False
@@ -105,6 +109,28 @@ def next_sketch():
             return jsonify({"status": "error", "message": "Session not initialized. Call /start first."}), 400
     else:
         return jsonify({"status": "error", "message": "Session not initialized. Call /start first."}), 400
+
+
+
+@app.route('/save_user_image', methods=['POST'])
+def save_canvas():
+    inputs = request.get_json(force=True)
+    # print("GET JSON  =", inputs)
+    # print("REQUEST =", request.form)
+    # print("USEENAME = ",inputs["userName"] , "IMAGE = ", inputs["userName"]  )
+    # print("STARTING USER IMAGE" )
+    image_data = re.sub('^data:image/.+;base64,', '', inputs['img'])
+    # print("IMAGE DATA  =" , image_data  )
+    im = Image.open(BytesIO(base64.b64decode(image_data)))
+    # print("opening image =" , im  )
+    # user_name = data['user_name']
+    folder_path = os.path.join('user_annotations', inputs["userName"])
+
+    if not os.path.exists(folder_path):
+        os.makedirs(folder_path)
+    im.save(f'{folder_path}/FILENAME.png')
+    print("userDataDrawingHistory =", inputs['userDataDrawingHistory'])
+    return json.dumps({'result': 'success'}), 200, {'ContentType': 'application/json'}
 
 
 if __name__ == "__main__":

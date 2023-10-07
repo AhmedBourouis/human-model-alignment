@@ -1,17 +1,20 @@
+// import {fetchUserSketchedImageResponse} from "./annotate_script";
+
 document.addEventListener("DOMContentLoaded", () => {
   // Initialize or retrieve currentIndex from localStorage
   let currentIndex = localStorage.getItem('currentIndex') ? parseInt(localStorage.getItem('currentIndex')) : 0;
 
   const form = document.getElementById("user-info-form");
-
-  form.addEventListener("submit", async (e) => {
+  var user_name=null
+  if(form){
+      form.addEventListener("submit", async (e) => {
     e.preventDefault();
-  
+
     const age = document.getElementById("age").value;
     const gender = document.getElementById("gender").value;
     const skill = document.getElementById("skill").value;
     const terms = document.getElementById("terms").checked;
-    const user_name = document.getElementById("user_name").value;
+    user_name = document.getElementById("user_name").value;
     const skill_freq = document.getElementById("skill_freq").value;
 
     const data = {
@@ -22,7 +25,8 @@ document.addEventListener("DOMContentLoaded", () => {
       "Drawing Frequency": skill_freq,
       "Terms Accepted": terms ? "Yes" : "No",
     };
-    
+
+
     // Send form data to the server
     const response = await fetch("/submit_form", {
       method: "POST",
@@ -31,9 +35,9 @@ document.addEventListener("DOMContentLoaded", () => {
       },
       body: JSON.stringify(data),
     });
-  
+
     const result = await response.json();
-  
+
     // if (result.status === "success") {
     //   const proceed = window.confirm("Do you want to go to the annotation screen?");
     //   if (proceed) {
@@ -47,7 +51,7 @@ document.addEventListener("DOMContentLoaded", () => {
     if (result.status === "success") {
       const proceed = window.confirm("Do you want to go to the annotation screen?");
       if (proceed) {
-        console.log("starting the annotation session");  
+        console.log("starting the annotation session");
         const startResponse = await fetch(`/start/${currentIndex}`);
         const startData = await startResponse.json();
         if (startData.status === "started") {
@@ -59,27 +63,42 @@ document.addEventListener("DOMContentLoaded", () => {
     } else { alert("Form submission failed."); }
   });
 
+  }
+
+
 
    // Function to fetch the next sketch for annotation
-  const fetchNextSketch = async () => {
-    const response = await fetch("/next_sketch");
-    const data = await response.json();
-  
-    // Check if all annotations are done
-    if (data.status === "done") {
-      // Display a thank you message and a Next Participant button
-      document.getElementById("annotationContainer").innerHTML = "<h1>Thank you for participating!</h1><button id='nextParticipantButton'>Next Participant</button>";
-      document.getElementById("nextParticipantButton").addEventListener("click", loadNextParticipant);
-      return;
+  const fetchNextSketch = async (savingCurrent=false) => {
+    console.log("CALLING FETCH NEXT SKETCH !")
+    if(savingCurrent){
+          fetchUserSketchedImageResponse("SIDAHMED" , userDataDrawingHistory )
     }
-  
-    // Update the sketch and class label without reloading the page
-    const sketchCanvas = document.getElementById("sketchCanvas");
-    const classLabelElement = document.getElementById("classLabel");
-  
-    sketchCanvas.src = `data:image/jpeg;base64,${data.sketch}`;
-    classLabelElement.innerText = `Please annotate class: ${data.class_label}`;
+
+
+    // const response = await fetch("/next_sketch");
+    // const data = await response.json();
+    //
+    // // Check if all annotations are done
+    // if (data.status === "done") {
+    //   // Display a thank you message and a Next Participant button
+    //   document.getElementById("annotationContainer").innerHTML = "<h1>Thank you for participating!</h1><button id='nextParticipantButton'>Next Participant</button>";
+    //   document.getElementById("nextParticipantButton").addEventListener("click", loadNextParticipant);
+    //   return;
+    // }
+    //
+    // // Update the sketch and class label without reloading the page
+    // const sketchCanvas = document.getElementById("sketchCanvas");
+    // const classLabelElement = document.getElementById("classLabel");
+    //
+    // sketchCanvas.src = `data:image/jpeg;base64,${data.sketch}`;
+    // classLabelElement.innerText = `Please annotate class: ${data.class_label}`;
   };
+    // Add an event listener for the Confirm Annotation button
+  const confirmButton = document.getElementById("confirmButton");
+  console.log("CONFIRM BUTTON =", confirmButton)
+  if (confirmButton) {
+    confirmButton.addEventListener("click", ()=>fetchNextSketch(savingCurrent=true));
+  }
   
   window.fetchNextSketch = fetchNextSketch;
 
@@ -101,14 +120,10 @@ document.addEventListener("DOMContentLoaded", () => {
 
   // If we are on the annotation screen, fetch the first sketch
   if (window.location.pathname === '/annotate') {
-    fetchNextSketch();
+    fetchNextSketch(savingCurrent=false);
   }
 
-  // Add an event listener for the Confirm Annotation button
-  const confirmButton = document.getElementById("confirmButton");
-  if (confirmButton) {
-    confirmButton.addEventListener("click", fetchNextSketch);
-  }
+
 });
 
 
