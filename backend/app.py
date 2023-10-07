@@ -17,7 +17,7 @@ app.config["SESSION_PERMANENT"] = False
 app.config["SESSION_TYPE"] = "filesystem"
 # app.secret_key = 'supersecretkey'
 Session(app)
- 
+
 @app.route('/')
 def index():
     return render_template('index.html')
@@ -44,6 +44,10 @@ def submit_form():
 # @app.route('/start', methods=['GET'])
 @app.route('/start/<int:index>', methods=['GET'])
 def start(index):
+    # global annotation_data
+    # global heatmaps_data
+    global all_classes
+    
     print("current user: ", index)
     all_sketches_lists = []
     with open('all_classes.json', "r") as f:
@@ -70,6 +74,8 @@ def start(index):
     
     # # Store the shuffled list in a session variable
     session['all_sketches_lists'] = all_sketches_lists
+    session['all_classes'] = all_classes
+
     # session['current_sketch_class_list'] = all_sketches_lists[index] if all_sketches_lists else []  # Start with the first user's sketches    
     
     if index < len(all_sketches_lists):
@@ -84,6 +90,7 @@ def annotate():
     print("Annotate called")
     if 'current_sketch_class_list' in session and len(session['current_sketch_class_list']) > 0:
         sketch_path, class_label = session['current_sketch_class_list'].pop(0)
+        print("length of user sketches: ", len(session['current_sketch_class_list']))
         with open(sketch_path, "rb") as image_file:
             encoded_string = base64.b64encode(image_file.read()).decode()
         return render_template('annotate.html', sketch=encoded_string, classLabel=class_label , sketch_path=sketch_path)
@@ -93,6 +100,8 @@ def annotate():
 
 @app.route('/next_sketch', methods=['GET'])
 def next_sketch():
+    print("length of user sketches: ", len(session['current_sketch_class_list']))
+
     # Fetch the next sketch and class label from the session variable
     if 'current_sketch_class_list' in session:
         if len(session['current_sketch_class_list']) > 0:
@@ -120,9 +129,10 @@ def next_sketch():
 @app.route('/save_user_image', methods=['POST'])
 def save_canvas():
     inputs = request.get_json(force=True)
-    RADIUS = inputs['radius']
+    RADIUS = int(inputs['radius'])
     CLASS_LABEL= inputs['classLabel']
     SKETCH_PATH= inputs['sketchPath']
+    
     print('radius =',RADIUS , "CLASS LABEL =", CLASS_LABEL , 'SKETCH PATH =', SKETCH_PATH)
     # print("GET JSON  =", inputs)
     # print("REQUEST =", request.form)
@@ -135,22 +145,19 @@ def save_canvas():
     img_np = np.array(im)    
     # Initialize a zeros array of shape (512, 512)
     img_result = np.zeros((512, 512), dtype=np.uint8)
+    all_classes = session['all_classes']
+    global_index = all_classes.index(CLASS_LABEL)
     
     for i in range(512):
         for j in range(512):
             pixel_value = img_np[i, j]
             if np.all(pixel_value == [255,0,0,255]):
-                img_result[i, j] = 1
+                img_result[i, j] = global_index 
+ 
+    def is_within_radius(x, y, cx, cy, radius=RADIUS):
+        distance = np.sqrt((x - cx)**2 + (y - cy)**2)
+        return distance <= radius
 
-    folder_path = os.path.join('user_annotations', inputs["userName"])
-
-    if not os.path.exists(folder_path):
-        os.makedirs(folder_path)
-    im.save(f'{folder_path}/FILENAME.png')
-    
-    # plt.imshow(img_result)
-    # plt.show()
-    
     def timestamp_to_numpy(timestamp_list,size=512):
         # Step 1: Initialize the array
         result = np.zeros((size, size), dtype=np.float64)
@@ -164,18 +171,36 @@ def save_canvas():
         for entry in timestamp_list:
             y, x, timestamp = entry['X'], entry['Y'], entry['timestamp']
             normalized_timestamp = (timestamp - t_min) / (t_max - t_min)
-            result[x-1, y-1] = normalized_timestamp  
-        
+            for x1 in range(x - RADIUS//2, x + RADIUS//2):
+                for y1 in range(y - RADIUS//2, y + RADIUS//2):
+                    if is_within_radius(x1, y1, x, y, radius=RADIUS):
+                        if x1 < 0 or x1 >= size or y1 < 0 or y1 >= size:
+                            continue
+                        else:
+                            result[x1, y1] = normalized_timestamp
         return result
     
-    img_result2 = timestamp_to_numpy(inputs['userDataDrawingHistory'])
-    # img_result2 = np.flip(img_result2, axis=0)
-
-    # plt.imshow(img_result2)
-    # plt.show()
-    # breakpoint()
-    # print("userDataDrawingHistory =", inputs['userDataDrawingHistory'])
+    heatmap = timestamp_to_numpy(inputs['userDataDrawingHistory'])
+    heatmap[img_result == 0] = 0 
+    
+    img_id = SKETCH_PATH.split('/')[-1].split('.')[0]
+    user_name = SKETCH_PATH.split('/')[-2]
+    folder_path = os.path.join('user_annotations', user_name)
+    if not os.path.exists(folder_path):
+        os.makedirs(folder_path)
+    annotation_path = os.path.join(folder_path, 'annotations')
+    heatmap_path = os.path.join(folder_path, 'heatmaps')
+    if not os.path.exists(annotation_path):
+        os.makedirs(annotation_path)
+    if not os.path.exists(heatmap_path):
+        os.makedirs(heatmap_path)
+    
+    img_class_name = f'{img_id}_{CLASS_LABEL}.npy'
+    np.save(os.path.join(annotation_path, img_class_name), img_result)
+    np.save(os.path.join(heatmap_path, img_class_name), heatmap)
+    
     return json.dumps({'result': 'success'}), 200, {'ContentType': 'application/json'}
+
 
 
 if __name__ == "__main__":
