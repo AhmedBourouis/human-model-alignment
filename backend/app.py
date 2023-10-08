@@ -177,8 +177,10 @@ def save_canvas():
     # plt.show()
     # breakpoint()
     # print("userDataDrawingHistory =", inputs['userDataDrawingHistory'])
+    print("userDataErasingHistory =", inputs['userDataErasingHistory'])
+
     return json.dumps({'result': 'success'}), 200, {'ContentType': 'application/json'}
 
 
 if __name__ == "__main__":
-    app.run(debug=True,port=5050)
+    app.run(debug=True,port=5000)

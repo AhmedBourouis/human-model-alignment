@@ -28,7 +28,7 @@ document.addEventListener("DOMContentLoaded", () => {
         console.log("SENDING THE IMAGE !")
         // THIS IS  THE LINE WHERE I HAVE CALLED THE SAVING IMAGE OPEARTION
         if(savingCurrent){
-          fetchUserSketchedImageResponse("SIDAHMED" , userDataDrawingHistory )
+          fetchUserSketchedImageResponse("SIDAHMED" , userDataDrawingHistory, userDataErasingHistory )
         }
            const response = await fetch("/next_sketch");
           const data = await response.json();
