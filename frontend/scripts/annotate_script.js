@@ -4,6 +4,8 @@ var tooltype = 'draw';
 use_tool = function(tool) {
     tooltype = tool; //update
     document.querySelector('#circle').style.borderColor = tool === "draw"? "red" : "black"
+    document.querySelector('#sizeSliderLabel').innerText = tool === "draw" ? "Brush Size:" : "Erase Size:"
+
 }
 
 // enabling drawing on the blank canvas

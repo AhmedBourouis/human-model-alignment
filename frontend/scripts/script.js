@@ -24,7 +24,8 @@ document.addEventListener("DOMContentLoaded", () => {
 
      // Function to fetch the next sketch for annotation
   const fetchNextSketch = async (savingCurrent=false) => {
-    confirmButton.disabled=true
+    if(!savingCurrent || (savingCurrent && confirm("Are you sure you want to confirm ?"))){
+          confirmButton.disabled=true
     console.log("CALLING FETCH NEXT SKETCH !")
     // TODO: activate it later
       console.log("SAVING CURRENT CHECK !")
@@ -77,6 +78,8 @@ document.addEventListener("DOMContentLoaded", () => {
         alert("You must do the sketching before movinf to the next ones !")
 
       }
+    }
+
 
 
 
