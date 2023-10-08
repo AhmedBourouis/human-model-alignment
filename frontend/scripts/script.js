@@ -73,6 +73,7 @@ document.addEventListener("DOMContentLoaded", () => {
 
 
       }else{
+        confirmButton.disabled=false
         alert("You must do the sketching before movinf to the next ones !")
 
       }
