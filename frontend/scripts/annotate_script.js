@@ -3,6 +3,7 @@ var tooltype = 'draw';
 //Use draw|erase
 use_tool = function(tool) {
     tooltype = tool; //update
+    document.querySelector('#circle').style.borderColor = tool === "draw"? "red" : "black"
 }
 
 // enabling drawing on the blank canvas
@@ -16,7 +17,16 @@ var timeStampNow= Date.now()
 const sizeElement = document.querySelector("#sizeRange");
 let size = sizeElement.value;
 sizeElement.oninput = (e) => {
+    console.log("ON SIZE INPUT !", document.querySelector('#circle') , e.target.value)
   size = e.target.value;
+
+    document.querySelector('#circle').style.height = e.target.value +'px'
+    document.querySelector('#circle').style.width = e.target.value +'px'
+
+    document.querySelector('#brush-size-circle').style.height = e.target.value +'px'
+    document.querySelector('#brush-size-circle').style.width = e.target.value +'px'
+
+
 };
 let color = "red"
 
@@ -86,10 +96,7 @@ function drawOnImage(image = null) {
     initialImageData= context.getImageData(0, 0, canvasElement.width, canvasElement.height)
   }
 
-  const clearElement = document.getElementById("clear");
-  clearElement.onclick = () => {
-    context.clearRect(0, 0, canvasElement.width, canvasElement.height);
-  };
+
 
   let isDrawing;
 
@@ -261,6 +268,7 @@ async function fetchUserSketchedImageResponse(userName , userDataDrawingHistory 
 
   var imageURL = canvasElement.toDataURL();
   // console.log("DATA URL", imageURL)
+  console.log("SKETCH PATH =", sketchPath)
   const response = await fetch("/save_user_image", {
     method: "POST",
     headers: {

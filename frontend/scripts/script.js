@@ -1,5 +1,8 @@
 // import {fetchUserSketchedImageResponse} from "./annotate_script";
 
+var sketch_index=0
+var user_name=localStorage.getItem("USERNAME") || null
+
 document.addEventListener("DOMContentLoaded", () => {
   // Initialize or retrieve currentIndex from localStorage
   let currentIndex = localStorage.getItem('currentIndex') ? parseInt(localStorage.getItem('currentIndex')) : 0;
@@ -21,6 +24,7 @@ document.addEventListener("DOMContentLoaded", () => {
 
      // Function to fetch the next sketch for annotation
   const fetchNextSketch = async (savingCurrent=false) => {
+    confirmButton.disabled=true
     console.log("CALLING FETCH NEXT SKETCH !")
     // TODO: activate it later
       console.log("SAVING CURRENT CHECK !")
@@ -28,9 +32,10 @@ document.addEventListener("DOMContentLoaded", () => {
         console.log("SENDING THE IMAGE !")
         // THIS IS  THE LINE WHERE I HAVE CALLED THE SAVING IMAGE OPEARTION
         if(savingCurrent){
-          fetchUserSketchedImageResponse("SIDAHMED" , userDataDrawingHistory, userDataErasingHistory )
+          fetchUserSketchedImageResponse(user_name , userDataDrawingHistory, userDataErasingHistory )
         }
-           const response = await fetch("/next_sketch");
+           const response = await fetch(`/next_sketch/${sketch_index}`);
+            sketch_index++
           const data = await response.json();
           console.log("DATA FETCH NEXT SKETCH  =", data)
 
@@ -64,6 +69,8 @@ document.addEventListener("DOMContentLoaded", () => {
               nextParticipantButton.style.display ='inline-block'
             }
         }
+            confirmButton.disabled=false
+
 
       }else{
         alert("You must do the sketching before movinf to the next ones !")
@@ -85,7 +92,7 @@ document.addEventListener("DOMContentLoaded", () => {
   const nextParticipantButton = document.querySelector('#nextParticipant')
   if(confirmButton){
       confirmButton.addEventListener("click", ()=>fetchNextSketch(savingCurrent=true));
-      nextParticipantButton.addEventListener("click" , loadNextParticipant )
+      nextParticipantButton.addEventListener("click" , ()=> window.location.href = "/thanks" )
   }
 
 
@@ -93,7 +100,6 @@ document.addEventListener("DOMContentLoaded", () => {
 
 
   const form = document.getElementById("user-info-form");
-  var user_name=null
   if(form){
       form.addEventListener("submit", async (e) => {
     e.preventDefault();
@@ -138,11 +144,14 @@ document.addEventListener("DOMContentLoaded", () => {
     // }
     if (result.status === "success") {
       const proceed = window.confirm("Do you want to go to the annotation screen?");
+
       if (proceed) {
         console.log("starting the annotation session");
-        const startResponse = await fetch(`/start/${currentIndex}`);
+        let collection_index = window.location.href.split('/').slice(-1)[0];
+        const startResponse = await fetch(`/start/${collection_index}`);
         const startData = await startResponse.json();
         if (startData.status === "started") {
+          localStorage.setItem("USERNAME", user_name)
           window.location.href = "/annotate"; // Navigate to the annotation page
         } else {
           alert("Could not start the annotation session.");
@@ -169,6 +178,14 @@ document.addEventListener("DOMContentLoaded", () => {
   // If we are on the annotation screen, fetch the first sketch
   if (window.location.pathname === '/annotate') {
     fetchNextSketch(savingCurrent=false);
+    let circle = document.getElementById('circle');
+
+    const onMouseMove = (e) =>{
+      circle.style.left = e.pageX + 'px';
+      circle.style.top = e.pageY + 'px';
+    }
+
+    document.addEventListener('mousemove', onMouseMove);
   }
 
 

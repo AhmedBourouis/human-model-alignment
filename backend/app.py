@@ -11,16 +11,22 @@ from io import BytesIO
 import re
 import matplotlib.pyplot as plt
 
-app = Flask(__name__, static_folder='../frontend', static_url_path='/')
+app = Flask(__name__, static_folder='../frontend', static_url_path='/' , template_folder='templates')
 # Configure session to use filesystem
 app.config["SESSION_PERMANENT"] = False
 app.config["SESSION_TYPE"] = "filesystem"
 # app.secret_key = 'supersecretkey'
 Session(app)
 
-@app.route('/')
-def index():
+
+@app.route('/<collection_index>')
+def index(collection_index=None):
     return render_template('index.html')
+
+@app.route('/thanks')
+def thanks():
+    return render_template('thanks.html')
+
 
 @app.route('/submit_form', methods=['POST'])
 def submit_form():
@@ -100,24 +106,26 @@ def annotate():
         return "Session not initialized. Call /start first.", 400
 
 
-@app.route('/next_sketch', methods=['GET'])
-def next_sketch():
+@app.route('/next_sketch/<sketch_index>', methods=['GET'])
+def next_sketch(sketch_index):
+    sketch_index = int(sketch_index)
     print("length of user sketches: ", len(session['current_sketch_class_list']))
 
     # Fetch the next sketch and class label from the session variable
     if 'current_sketch_class_list' in session:
         if len(session['current_sketch_class_list']) > 0:
             isLast = False
-            if(len(session['current_sketch_class_list']) == 1 ):
+            if( sketch_index+1 == len(session['current_sketch_class_list']) ):
                 isLast = True
 
-            sketch_path, class_label = session['current_sketch_class_list'].pop(0)
+            # sketch_path, class_label = session['current_sketch_class_list'].pop(0)
+            sketch_path, class_label = session['current_sketch_class_list'][sketch_index]
             # Open image file
             with open(sketch_path, "rb") as image_file:
                 # Encode as base64
                 encoded_string = base64.b64encode(image_file.read()).decode()
 
-            return jsonify({"sketch": encoded_string, "class_label": class_label , "sketch_path" : sketch_path , "isLast" : isLast , "remaining" : len(session['current_sketch_class_list'])  }), 200
+            return jsonify({"sketch": encoded_string, "class_label": class_label , "sketch_path" : sketch_path , "isLast" : isLast , "remaining" : (len(session['current_sketch_class_list']) -1) - sketch_index  }), 200
         
         elif len(session['current_sketch_class_list']) == 0:
             return jsonify({"status": "done", "message": "All sketches annotated, ready for next user."}), 200
@@ -185,9 +193,9 @@ def save_canvas():
 
     heatmap = timestamp_to_numpy(inputs['userDataDrawingHistory'])
     heatmap[img_result == 0] = 0 
-    
-    img_id = SKETCH_PATH.split('/')[-1].split('.')[0]
-    user_name = SKETCH_PATH.split('/')[-2]
+    print("SKETCH PATH =", SKETCH_PATH)
+    img_id = SKETCH_PATH.split('\\')[-1].split('.')[0]
+    user_name = SKETCH_PATH.split('\\')[-2]
     folder_path = os.path.join('user_annotations', user_name)
     if not os.path.exists(folder_path):
         os.makedirs(folder_path)
