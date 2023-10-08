@@ -27,12 +27,12 @@
 </head>
 <body>
   <h1>Annotation Screen</h1>
-  <h2 id="classLabel">Please annotate class: <span>{{ classLabel }}</span></h2>
-  <div style="display: none" id="sketchPath">{{sketch_path}}</div>
+  <h2 id="classLabel">Please annotate class: <span></span></h2>
+  <div style="display: none" id="sketchPath"></div>
 
   <div id="container">
     <!-- Canvas for sketch -->
-    <img style="display: none" id="sketchCanvas" src="data:image/jpeg;base64,{{sketch}}" alt="Sketch">
+    <img style="display: none" id="sketchCanvas"  alt="Sketch">
 {#      the canvas where we will display our image and do the drawing#}
             <br>
 
@@ -58,8 +58,8 @@
             </div>
     <!-- Control Panel -->
     <div id="control-panel">
-      <button id="brushButton">Brush</button>
-      <button id="eraserButton">Eraser</button>
+      <button id="brushButton"  onclick="use_tool('draw');">Brush</button>
+      <button id="eraserButton"  onclick="use_tool('erase');" >Eraser</button>
       <br>
       <label for="sizeSlider">Size:</label>
       <input type="range" id="sizeSlider" min="1" max="100">

@@ -23,52 +23,55 @@ document.addEventListener("DOMContentLoaded", () => {
   const fetchNextSketch = async (savingCurrent=false) => {
     console.log("CALLING FETCH NEXT SKETCH !")
     // TODO: activate it later
-    if(savingCurrent){
       console.log("SAVING CURRENT CHECK !")
-      if(userDataDrawingHistory.length){
+      if( (userDataDrawingHistory.length && savingCurrent) || !savingCurrent){
         console.log("SENDING THE IMAGE !")
         // THIS IS  THE LINE WHERE I HAVE CALLED THE SAVING IMAGE OPEARTION
-        fetchUserSketchedImageResponse("SIDAHMED" , userDataDrawingHistory )
+        if(savingCurrent){
+          fetchUserSketchedImageResponse("SIDAHMED" , userDataDrawingHistory, userDataErasingHistory )
+        }
+           const response = await fetch("/next_sketch");
+          const data = await response.json();
+          console.log("DATA FETCH NEXT SKETCH  =", data)
+
+
+          // // Check if all annotations are done
+          // if (data.status === "done") {
+          //   console.log("DONE !!!!!!!!!!!!!")
+          //   // Display a thank you message and a Next Participant button
+          //   document.getElementById("annotationContainer").innerHTML = "<h1>Thank you for participating!</h1><button id='nextParticipantButton'>Next Participant</button>";
+          //   document.getElementById("nextParticipantButton").addEventListener("click", loadNextParticipant);
+          //   // return;
+          // }
+
+          // Update the sketch and class label without reloading the page
+          const sketchCanvas = document.getElementById("sketchCanvas");
+          const classLabelElement = document.getElementById("classLabel");
+
+          sketchCanvas.src = `data:image/jpeg;base64,${data.sketch}`;
+          document.querySelector('#classLabel > span').innerText = data.class_label
+          document.querySelector('#sketchPath').innerText = data.sketch_path
+          // if(savingCurrent){
+                initializeCanvasElementForNextSketch()
+          // }
+
+          if (confirmButton) {
+            console.log("CONFIRM BUTTON EXISTS !")
+            if(data.isLast){
+              console.log("THIS IS THE LAST DATA !")
+              // hide the confirmation button and show the next participant button
+              confirmButton.style.display='none'
+              nextParticipantButton.style.display ='inline-block'
+            }
+        }
+
       }else{
         alert("You must do the sketching before movinf to the next ones !")
+
       }
-    }
 
 
-    const response = await fetch("/next_sketch");
-    const data = await response.json();
-    console.log("DATA FETCH NEXT SKETCH  =", data)
 
-
-    // // Check if all annotations are done
-    // if (data.status === "done") {
-    //   console.log("DONE !!!!!!!!!!!!!")
-    //   // Display a thank you message and a Next Participant button
-    //   document.getElementById("annotationContainer").innerHTML = "<h1>Thank you for participating!</h1><button id='nextParticipantButton'>Next Participant</button>";
-    //   document.getElementById("nextParticipantButton").addEventListener("click", loadNextParticipant);
-    //   // return;
-    // }
-
-    // Update the sketch and class label without reloading the page
-    const sketchCanvas = document.getElementById("sketchCanvas");
-    const classLabelElement = document.getElementById("classLabel");
-
-    sketchCanvas.src = `data:image/jpeg;base64,${data.sketch}`;
-    document.querySelector('#classLabel > span').innerText = data.class_label
-    document.querySelector('#sketchPath').innerText = data.sketch_path
-    if(savingCurrent){
-          initializeCanvasElementForNextSketch()
-    }
-
-    if (confirmButton) {
-      console.log("CONFIRM BUTTON EXISTS !")
-      if(data.isLast){
-        console.log("THIS IS THE LAST DATA !")
-        // hide the confirmation button and show the next participant button
-        confirmButton.style.display='none'
-        nextParticipantButton.style.display ='inline-block'
-      }
-  }
 
 
     // classLabelElement.innerText = `Please annotate class: ${data.class_label}`;
@@ -84,6 +87,7 @@ document.addEventListener("DOMContentLoaded", () => {
       confirmButton.addEventListener("click", ()=>fetchNextSketch(savingCurrent=true));
       nextParticipantButton.addEventListener("click" , loadNextParticipant )
   }
+
 
 
 
@@ -164,7 +168,6 @@ document.addEventListener("DOMContentLoaded", () => {
 
   // If we are on the annotation screen, fetch the first sketch
   if (window.location.pathname === '/annotate') {
-    console.log("FETCHING WITHOUT SAVING CURRRENT !")
     fetchNextSketch(savingCurrent=false);
   }
 

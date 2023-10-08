@@ -89,11 +89,13 @@ def start(index):
 def annotate():
     print("Annotate called")
     if 'current_sketch_class_list' in session and len(session['current_sketch_class_list']) > 0:
-        sketch_path, class_label = session['current_sketch_class_list'].pop(0)
-        print("length of user sketches: ", len(session['current_sketch_class_list']))
-        with open(sketch_path, "rb") as image_file:
-            encoded_string = base64.b64encode(image_file.read()).decode()
-        return render_template('annotate.html', sketch=encoded_string, classLabel=class_label , sketch_path=sketch_path)
+
+        # sketch_path, class_label = session['current_sketch_class_list'].pop(0)
+        # with open(sketch_path, "rb") as image_file:
+        #     encoded_string = base64.b64encode(image_file.read()).decode()
+        # return render_template('annotate.html', sketch=encoded_string, classLabel=class_label , sketch_path=sketch_path)
+        return render_template('annotate.html')
+
     else:
         return "Session not initialized. Call /start first.", 400
 
@@ -180,6 +182,7 @@ def save_canvas():
                             result[x1, y1] = normalized_timestamp
         return result
     
+
     heatmap = timestamp_to_numpy(inputs['userDataDrawingHistory'])
     heatmap[img_result == 0] = 0 
     
@@ -199,9 +202,20 @@ def save_canvas():
     np.save(os.path.join(annotation_path, img_class_name), img_result)
     np.save(os.path.join(heatmap_path, img_class_name), heatmap)
     
+
+    img_result2 = timestamp_to_numpy(inputs['userDataDrawingHistory'])
+    # img_result2 = np.flip(img_result2, axis=0)
+
+    # plt.imshow(img_result2)
+    # plt.show()
+    # breakpoint()
+    # print("userDataDrawingHistory =", inputs['userDataDrawingHistory'])
+    print("userDataErasingHistory =", inputs['userDataErasingHistory'])
+
+
     return json.dumps({'result': 'success'}), 200, {'ContentType': 'application/json'}
 
 
 
 if __name__ == "__main__":
-    app.run(debug=True,port=5050)
+    app.run(debug=True,port=5000)
