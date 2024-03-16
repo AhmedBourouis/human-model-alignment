@@ -64,7 +64,7 @@ def submit_form():
     if not os.path.exists(folder_path):
         os.makedirs(folder_path)
     
-    df.to_csv(os.path.join(folder_path, 'user_info.csv'), index=False)
+    df.to_csv(os.path.join(folder_path, f'{user_name}_info.csv'), index=False)
 
     return jsonify({"status": "success", "message": "Form submitted successfully"}), 200
 
@@ -76,7 +76,7 @@ def start(index):
     # global heatmaps_data
     global all_classes
     
-    print("current user: ", index)
+    # print("current user: ", index)
     all_sketches_lists = []
     with open('all_classes.json', "r") as f:
         all_classes = json.load(f)
@@ -131,7 +131,7 @@ def annotate():
 @app.route('/next_sketch/<sketch_index>', methods=['GET'])
 def next_sketch(sketch_index):
     sketch_index = int(sketch_index)
-    print("length of user sketches: ", len(session['current_sketch_class_list']))
+    # print("length of user sketches: ", len(session['current_sketch_class_list']))
 
     # Fetch the next sketch and class label from the session variable
     if 'current_sketch_class_list' in session:
@@ -164,7 +164,7 @@ def save_canvas():
     CLASS_LABEL = inputs['classLabel']
     SKETCH_PATH = inputs['sketchPath']
 
-    print('radius =', RADIUS, "CLASS LABEL =", CLASS_LABEL, 'SKETCH PATH =', SKETCH_PATH)
+    # print('radius =', RADIUS, "CLASS LABEL =", CLASS_LABEL, 'SKETCH PATH =', SKETCH_PATH)
     # print("GET JSON  =", inputs)
     # print("REQUEST =", request.form)
     # print("USEENAME = ",inputs["userName"] , "IMAGE = ", inputs["userName"]  )

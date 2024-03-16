@@ -44,18 +44,33 @@
   </style>
 </head>
 <body>
-    <div class="jumbotron jumbotron-fluid" style="padding: 1.5rem 1.5rem">
+    <!-- <div class="jumbotron jumbotron-fluid" style="padding: 1.5rem 1.5rem">
         <h1>Annotation Screen</h1>
         <div> Description : ................ </div>
         <h2 id="classLabel">Please annotate class: <span class="badge badge-pill badge-info"></span></h2>
-    </div>
-
+    </div> -->
+  <div class="jumbotron jumbotron-fluid" style="padding: 1.5rem 1.5rem; background-color: #f2f5f8;">
+    <h1 class="display-4" style="font-size: 2rem;">Sketch Annotation Guide</h1>
+    <p class="lead">Follow the instructions below while annotating sketches.</p>
+    <hr class="my-2">
+    <p><strong>Sketch Series:</strong> You will encounter 6 sketches, each containing different class objects.</p>
+    <!-- <hr class="my-1"> -->
+    <p><strong>Task:</strong> Annotate/paint the current class in each sketch.</p>
+    <!-- <hr class="my-1"> -->
+    <p><strong>Tools:</strong> Brushes and erasers of varying sizes are available for annotations.</p>
+    <!-- <hr class="my-1"> -->
+    <p><strong>Commitment:</strong> Once a segmentation is confirmed for a class, it is final and cannot be changed.</p>
+    <!-- <hr class="my-1"> -->
+    <p><strong>Progression:</strong> After completing a class object, proceed to the next one in the series.</p>
+    <h3 id="classLabel" style="margin-top: 1rem;font-size: 2rem;">Current class to annotate: <span class="badge badge-pill badge-info"></span></h3>
+  </div>
+  
   <div style="display: none" id="sketchPath"></div>
 
   <div id="container">
     <!-- Canvas for sketch -->
     <img style="display: none" id="sketchCanvas"  alt="Sketch">
-{#      the canvas where we will display our image and do the drawing#}
+    {# the canvas where we will display our image and do the drawing#}
             <br>
 
       <canvas
@@ -67,31 +82,32 @@
 
 
     <!-- Control Panel -->
-    <div id="control-panel">
-        <div class="d-inline-flex flex-column">
-           <button id="brushButton"  class="btn btn-primary" onclick="use_tool('draw');">Brush</button>
-            <button id="eraserButton" class="btn btn-secondary mt-2 mb-2"   onclick="use_tool('erase');" >Eraser</button>
-        </div>
-
+    <div id="control-panel" style="margin-left: 6rem;">
+      <!-- Annotation Tools Title -->
+      <div style="text-align: center; margin-bottom: 3rem; font-size: 24px;">
+        <strong>Annotation Tools</strong>
+      </div>
+      <div class="d-inline-flex flex-column">
+        <button id="brushButton"  class="btn btn-primary" onclick="use_tool('draw');">Brush</button>
+        <button id="eraserButton" class="btn btn-secondary mt-2 mb-2"   onclick="use_tool('erase');" >Eraser</button>
+      </div>
       <br>
       <div>
-            <div class="form-group">
-{#                <label for="formControlRange">Example Range input</label>#}
-                <label id="sizeSliderLabel" for="sizeSlider">Brush Size:</label>
-                <input
-                                class="form-control-range size"
-                                type="range"
-                                min="1"
-                                max="100"
-                                value="25"
-                                id="sizeRange"
-                              />
-          </div>
-
-
+        <div class="form-group">
+          <!-- {#        <label for="formControlRange">Example Range input</label>#} -->
+          <label id="sizeSliderLabel" for="sizeSlider">Brush Size:</label>
+            <input
+              class="form-control-range size"
+                type="range"
+                min="1"
+                max="100"
+                value="25"
+                id="sizeRange"
+            />
+        </div>
       </div>
-
     </div>
+
   </div>
 
   <button id="confirmButton" class="btn btn-success mt-3 mb-3" >Confirm </button>

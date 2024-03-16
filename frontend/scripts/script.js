@@ -114,14 +114,16 @@ document.addEventListener("DOMContentLoaded", () => {
     const terms = document.getElementById("terms").checked;
     user_name = document.getElementById("user_name").value;
     const skill_freq = document.getElementById("skill_freq").value;
-
+    const user_consent = document.getElementById("consent").checked;
+    console.log("USER CONSENT = ", user_consent)
     const data = {
-      user_name: user_name, // replace this as needed
+      user_name: user_name, 
       Age: age,
       Gender: gender,
       "Drawing Skills": skill,
       "Drawing Frequency": skill_freq,
       "Terms Accepted": terms ? "Yes" : "No",
+      "Consent": user_consent ? "Yes" : "No",
     };
 
 
