@@ -11,3 +11,30 @@ We identified four distinct sketch groups that are challenging for our model:
 We supplement these four groups with sketches where our model labels correctly more than 80% of pixels: 
 
 5. Strong performance.
+
+# Participants
+We recruited 25 participants (14 male) for this study. Each participant was randomly assigned six sketches: 1 from each of the first 4 groups and 2 from the 5th group, such that every sketch was annotated by five unique participants. 
+
+
+# User Instructions
+<div align="center">
+<img src="web_page.png" width="85%">
+</div>
+
+# Annotation Interface
+<div align="center">
+<img src="annotation_interface.png" width="85%">
+</div>
+
+# Citation
+If you find this useful in your research, please consider citing:
+```
+@misc{bourouis2023open,
+title={Open Vocabulary Semantic Scene Sketch Understanding}, 
+author={Ahmed Bourouis and Judith Ellen Fan and Yulia Gryaditskaya},
+year={2023},
+eprint={2312.12463},
+archivePrefix={arXiv},
+primaryClass={cs.CV}
+}
+```
