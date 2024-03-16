@@ -9,4 +9,5 @@ We identified four distinct sketch groups that are challenging for our model:
 4. merous-categories: sketches with six or more categories.
 
 We supplement these four groups with sketches where our model labels correctly more than 80% of pixels: 
-6. Strong performance.
+
+5. Strong performance.
